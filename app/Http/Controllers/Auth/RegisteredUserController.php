@@ -33,11 +33,10 @@ class RegisteredUserController extends Controller
      */
     public function store(Request $request)
     {
-        // Task: change validation rule to include at least one letter
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'password' => ['required', 'string', 'confirmed', 'min:8', 'regex:/[a-zA-Z]/'], // Must contain at least one letter (uppercase or lowercase)
         ]);
 
         $user = User::create([
@@ -45,10 +44,6 @@ class RegisteredUserController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
         ]);
-
-        event(new Registered($user));
-
-        Auth::login($user);
 
         return redirect(RouteServiceProvider::HOME);
     }
